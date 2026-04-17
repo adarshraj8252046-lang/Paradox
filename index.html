@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welfare Scheme Eligibility Finder</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <i data-lucide="shield-check" class="icon-primary"></i>
+        <span>WelfareConnect</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#" data-target="home-section" class="active">Home</a></li>
+        <li><a href="#" data-target="eligibility-section">Check Eligibility</a></li>
+        <li><a href="#" data-target="schemes-section">Schemes</a></li>
+        <li><a href="#" data-target="ngos-section">NGO Partners</a></li>
+        <li><a href="#" data-target="stories-section">Success Stories</a></li>
+      </ul>
+      <div class="hamburger">
+        <i data-lucide="menu"></i>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content Areas (SPA structure) -->
+  <main>
+
+    <!-- HOME SECTION -->
+    <section id="home-section" class="page-section active-section">
+      <div class="hero">
+        <div class="hero-content">
+          <h1>Find Government Schemes You Deserve</h1>
+          <p>Discover welfare programs tailored to your profile and connect with local NGOs in Kolkata for direct
+            assistance.</p>
+          <div class="hero-buttons">
+            <button class="btn btn-primary" id="btn-start-check">Check Eligibility</button>
+            <button class="btn btn-secondary" id="btn-view-schemes">Explore Schemes</button>
+          </div>
+        </div>
+        <div class="hero-image-placeholder">
+          <div class="glass-card decorative-card card-1">
+            <i data-lucide="check-circle" class="icon-green"></i>
+            <div>Matches in Seconds</div>
+          </div>
+          <div class="glass-card decorative-card card-2">
+            <i data-lucide="map-pin" class="icon-blue"></i>
+            <div>Local NGO Help</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="features-row">
+        <div class="feature-card">
+          <i data-lucide="search" class="feature-icon"></i>
+          <h3>Smart Matching</h3>
+          <p>Our engine instantly filters schemes based on your income, age, and occupation.</p>
+        </div>
+        <div class="feature-card">
+          <i data-lucide="users" class="feature-icon"></i>
+          <h3>NGO Verification</h3>
+          <p>Connect with highly-rated NGOs in Kolkata to assist with your applications.</p>
+        </div>
+        <div class="feature-card">
+          <i data-lucide="shield" class="feature-icon"></i>
+          <h3>Trust & Safety</h3>
+          <p>Read real success stories and verifiable reviews from active beneficiaries.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ELIGIBILITY SECTION -->
+    <section id="eligibility-section" class="page-section">
+      <div class="container section-header">
+        <h2>Eligibility Engine</h2>
+        <p>Enter your details below to find the schemes you are most likely eligible for.</p>
+      </div>
+      <div class="container eligibility-container">
+        <div class="form-card glass-card">
+          <form id="eligibility-form">
+            <div class="form-grid">
+              <div class="input-group">
+                <label>Age</label>
+                <input type="number" id="form-age" placeholder="e.g. 35" required min="1" max="120">
+              </div>
+              <div class="input-group">
+                <label>Gender</label>
+                <select id="form-gender" required>
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Annual Income (₹)</label>
+                <input type="number" id="form-income" placeholder="e.g. 150000" required min="0">
+              </div>
+              <div class="input-group">
+                <label>Category</label>
+                <select id="form-category" required>
+                  <option value="">Select</option>
+                  <option value="General">General</option>
+                  <option value="SC">SC</option>
+                  <option value="ST">ST</option>
+                  <option value="OBC">OBC</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Occupation</label>
+                <select id="form-occupation" required>
+                  <option value="">Select</option>
+                  <option value="Farmer">Farmer</option>
+                  <option value="Student">Student</option>
+                  <option value="Unemployed">Unemployed</option>
+                  <option value="Self-Employed">Self-Employed</option>
+                  <option value="Employed">Salaried Employee</option>
+                  <option value="Laborer">Daily Wage Laborer</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Disability Status</label>
+                <select id="form-disability" required>
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Find Schemes</button>
+          </form>
+        </div>
+
+        <div class="results-area" id="results-area">
+          <h3>Your Matches (<span id="match-count">0</span>)</h3>
+          <div id="results-grid" class="cards-grid">
+            <!-- Dynamic results populated here -->
+            <p class="placeholder-text">Fill the form to see your matches here.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHEMES SECTION -->
+    <section id="schemes-section" class="page-section">
+      <div class="container section-header">
+        <h2>All Government Schemes</h2>
+        <p>Browse our complete directory of welfare schemes.</p>
+      </div>
+      <div class="container">
+        <div id="all-schemes-grid" class="cards-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- NGOS SECTION -->
+    <section id="ngos-section" class="page-section">
+      <div class="container section-header">
+        <h2>Verified NGO Partners in Kolkata</h2>
+        <p>Connect with local organizations ready to help you apply.</p>
+        <div class="location-banner user-location">
+          <i data-lucide="map-pin"></i> Detected Location: <strong>Kolkata, West Bengal</strong> (Estimated)
+        </div>
+      </div>
+      <div class="container">
+        <div id="ngo-grid" class="cards-grid style-ngo-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- STORIES SECTION -->
+    <section id="stories-section" class="page-section">
+      <div class="container section-header">
+        <h2>Success Stories</h2>
+        <p>Real impact from real users across our platform.</p>
+      </div>
+      <div class="container">
+        <div id="stories-grid" class="stories-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Help Request Modal -->
+  <div id="help-modal" class="modal">
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h3>Request Help from <span id="modal-ngo-name">NGO</span></h3>
+        <button class="close-btn" id="close-modal"><i data-lucide="x"></i></button>
+      </div>
+      <form id="help-form">
+        <input type="hidden" id="help-ngo-id">
+        <div class="input-group">
+          <label>Your Name</label>
+          <input type="text" required placeholder="John Doe">
+        </div>
+        <div class="input-group">
+          <label>Phone Number</label>
+          <input type="tel" required placeholder="+91 XXXXX XXXXX">
+        </div>
+        <div class="input-group">
+          <label>Select Scheme Assistance</label>
+          <select id="modal-scheme-select" required>
+            <!-- Populated by JS -->
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Message</label>
+          <textarea rows="4" placeholder="Briefly describe what you need help with..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Send Request</button>
+      </form>
+      <div id="help-success" class="success-message hidden">
+        <i data-lucide="check-circle" class="icon-green large-icon"></i>
+        <h4>Request Sent Successfully!</h4>
+        <p>The NGO has been notified and will contact you shortly.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-logo">
+        <i data-lucide="shield-check"></i>
+        WelfareConnect
+      </div>
+      <p>Connecting citizens with the right schemes and support.</p>
+    </div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
