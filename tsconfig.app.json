@@ -17,8 +17,19 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "paths": {
+      "@/integrations/*": ["./integration/*"],
+      "@/contexts/AuthContext": ["./integration/auth/AuthContext"],
+      "@/pages/AuthCallback": ["./integration/auth/AuthCallback"],
+      "@/pages/ResetPassword": ["./integration/auth/ResetPassword"],
+      "@/components/ProtectedRoute": ["./integration/auth/ProtectedRoute"],
+      "@/components/PaymentModal": ["./payment-gateway/PaymentModal"],
+      "@/components/PaywallModal": ["./payment-gateway/PaywallModal"],
       "@/*": [
-        "./src/*"
+        "./frontend/*",
+        "./backend/*",
+        "./integration/*",
+        "./payment-gateway/*",
+        "./ui-ux/*"
       ]
     },
     "skipLibCheck": true,
@@ -30,6 +41,10 @@
     "useDefineForClassFields": true
   },
   "include": [
-    "src"
+    "frontend",
+    "backend",
+    "integration",
+    "payment-gateway",
+    "ui-ux"
   ]
 }
