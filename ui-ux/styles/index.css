@@ -1,0 +1,146 @@
+/**
+ * index.css
+ * ----------------------------------------------------------------------------
+ * WelfareConnect global stylesheet and design system.
+ *
+ * Defines all design tokens (colours, gradients, shadows, fonts) as HSL CSS
+ * variables so every component stays consistent and themable. Components must
+ * never hard-code colours — they should use the semantic tokens declared here.
+ *
+ * Palette (from spec):
+ *   navy        #1F3864  → primary brand colour, headers, buttons
+ *   link blue   #2E5FA3  → links and secondary accents
+ *   border blue #AACDE0  → card borders, table borders
+ *   cell blue   #D6E4F0  → secondary fills, table cells, soft backgrounds
+ *   success     #E8F5E9  → success banners
+ *   warning     #FFF3CD  → warning banners
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ---------- Core surfaces ---------- */
+    --background: 210 40% 99%;
+    --foreground: 220 50% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 50% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 50% 15%;
+
+    /* ---------- Brand: navy primary ---------- */
+    /* #1F3864 → hsl(218 53% 26%) */
+    --primary: 218 53% 26%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 218 53% 38%;
+
+    /* ---------- Secondary: cell blue ---------- */
+    /* #D6E4F0 → hsl(210 53% 89%) */
+    --secondary: 210 53% 89%;
+    --secondary-foreground: 218 53% 26%;
+
+    /* ---------- Muted ---------- */
+    --muted: 210 40% 96%;
+    --muted-foreground: 218 20% 45%;
+
+    /* ---------- Accent: link blue ---------- */
+    /* #2E5FA3 → hsl(214 56% 41%) */
+    --accent: 214 56% 41%;
+    --accent-foreground: 0 0% 100%;
+
+    /* ---------- Status colours ---------- */
+    --success: 122 39% 93%;          /* #E8F5E9 */
+    --success-foreground: 122 39% 25%;
+    --warning: 45 100% 90%;          /* #FFF3CD */
+    --warning-foreground: 35 80% 30%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* ---------- Borders / inputs / focus ring ---------- */
+    /* border blue #AACDE0 → hsl(204 50% 78%) */
+    --border: 204 50% 84%;
+    --input: 204 50% 84%;
+    --ring: 218 53% 26%;
+
+    --radius: 0.625rem;
+
+    /* ---------- Gradients ---------- */
+    --gradient-hero: linear-gradient(135deg, hsl(218 53% 26%) 0%, hsl(214 56% 41%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(210 53% 96%) 0%, hsl(0 0% 100%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 53% 98%) 100%);
+
+    /* ---------- Shadows ---------- */
+    --shadow-sm: 0 1px 2px hsl(218 53% 26% / 0.06);
+    --shadow-md: 0 4px 14px -2px hsl(218 53% 26% / 0.10);
+    --shadow-lg: 0 18px 40px -12px hsl(218 53% 26% / 0.20);
+    --shadow-glow: 0 0 32px hsl(214 56% 41% / 0.25);
+
+    /* ---------- Sidebar (unused but required by template) ---------- */
+    --sidebar-background: 218 53% 26%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 218 53% 26%;
+    --sidebar-accent: 218 53% 32%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 218 53% 32%;
+    --sidebar-ring: 214 56% 60%;
+  }
+
+  .dark {
+    --background: 220 40% 8%;
+    --foreground: 210 40% 96%;
+    --card: 220 40% 11%;
+    --card-foreground: 210 40% 96%;
+    --popover: 220 40% 11%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 214 60% 60%;
+    --primary-foreground: 220 40% 8%;
+    --primary-glow: 214 60% 70%;
+    --secondary: 218 30% 20%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 218 30% 18%;
+    --muted-foreground: 210 20% 70%;
+    --accent: 214 56% 50%;
+    --accent-foreground: 0 0% 100%;
+    --border: 218 30% 22%;
+    --input: 218 30% 22%;
+    --ring: 214 60% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', Arial, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Minimum 44×44px tap-target helper for accessibility */
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .bg-gradient-hero { background: var(--gradient-hero); }
+  .bg-gradient-soft { background: var(--gradient-soft); }
+  .bg-gradient-card { background: var(--gradient-card); }
+
+  .shadow-elegant { box-shadow: var(--shadow-md); }
+  .shadow-elevated { box-shadow: var(--shadow-lg); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+}
