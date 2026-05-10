@@ -38,27 +38,32 @@ export default function Home() {
   return (
     <div className="animate-fade-in">
       {/* ---------- Hero ---------- */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-hero opacity-95" aria-hidden="true" />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,hsl(0_0%_100%/0.18),transparent_50%),radial-gradient(circle_at_80%_70%,hsl(0_0%_100%/0.12),transparent_55%)]" aria-hidden="true" />
-        <div className="container py-20 lg:py-28 text-primary-foreground">
-          <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground/10 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-              <ShieldCheck className="h-3.5 w-3.5" /> Verified · Trusted · Free
-            </span>
-            <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+      <section className="relative overflow-hidden pt-24 pb-32">
+        {/* Animated Gradient Orbs */}
+        <div className="absolute top-1/2 left-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[120px] animate-pulse-slow" aria-hidden="true" />
+        <div className="absolute top-0 right-0 -z-10 h-[400px] w-[400px] translate-x-1/3 -translate-y-1/4 rounded-full bg-accent/20 blur-[100px] animate-pulse-slow" aria-hidden="true" />
+        <div className="absolute bottom-0 left-0 -z-10 h-[500px] w-[500px] -translate-x-1/4 translate-y-1/4 rounded-full bg-primary/10 blur-[100px]" aria-hidden="true" />
+        
+        <div className="container relative z-10 text-center animate-slide-up">
+          <div className="mx-auto max-w-4xl">
+            <div className="mb-8 flex justify-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/50 px-4 py-1.5 text-sm font-semibold text-primary backdrop-blur-md shadow-sm">
+                <ShieldCheck className="h-4 w-4" /> Verified · Trusted · Free
+              </span>
+            </div>
+            <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight sm:text-6xl lg:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-pulse-slow">
               {t("home.heading")}
             </h1>
-            <p className="mt-5 max-w-2xl text-lg opacity-100 text-primary">
+            <p className="mx-auto mt-6 max-w-2xl text-lg font-medium text-muted-foreground sm:text-xl">
               {t("home.subcopy")}
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg" variant="ghost" className="tap-target font-semibold shadow-elegant bg-accent text-secondary-foreground border border-primary-foreground">
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Button asChild size="lg" className="tap-target h-14 w-full rounded-full px-8 text-base font-semibold shadow-glow sm:w-auto hover:scale-105 transition-transform duration-300">
                 <Link to="/eligibility">
-                  {t("home.cta.eligibility")} <ArrowRight className="ml-2 h-4 w-4" />
+                  {t("home.cta.eligibility")} <ArrowRight className="ml-2 h-5 w-5 animate-bounce" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="tap-target border-primary-foreground/40 font-semibold bg-secondary text-secondary-foreground">
+              <Button asChild size="lg" variant="outline" className="tap-target h-14 w-full rounded-full border-2 bg-background/50 px-8 text-base font-semibold backdrop-blur-md sm:w-auto hover:bg-secondary/80 transition-colors">
                 <Link to="/schemes">{t("home.cta.schemes")}</Link>
               </Button>
             </div>
@@ -67,17 +72,17 @@ export default function Home() {
       </section>
 
       {/* ---------- Feature cards ---------- */}
-      <section className="container -mt-10 grid gap-5 pb-16 sm:grid-cols-2 lg:grid-cols-3">
-        {features.map((f) => {
+      <section className="container relative z-10 -mt-12 grid gap-6 pb-24 sm:grid-cols-2 lg:grid-cols-3">
+        {features.map((f, i) => {
           const Icon = f.icon;
           return (
-            <Card key={f.titleKey} className="group relative overflow-hidden border-border/60 bg-gradient-card shadow-elegant transition-all hover:shadow-elevated hover:-translate-y-0.5">
-              <CardContent className="p-6">
-                <div className="mb-4 inline-grid h-11 w-11 place-items-center rounded-lg bg-secondary text-primary">
-                  <Icon className="h-5 w-5" />
+            <Card key={f.titleKey} className={`group glass-card overflow-hidden border-border/40 hover:border-primary/50 ${i === 1 ? 'lg:-translate-y-4 lg:hover:-translate-y-6' : ''}`}>
+              <CardContent className="p-8">
+                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                  <Icon className="h-7 w-7" />
                 </div>
-                <h3 className="text-lg font-semibold">{t(f.titleKey)}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t(f.bodyKey)}</p>
+                <h3 className="mb-3 text-xl font-bold tracking-tight">{t(f.titleKey)}</h3>
+                <p className="text-base leading-relaxed text-muted-foreground">{t(f.bodyKey)}</p>
               </CardContent>
             </Card>
           );

@@ -25,56 +25,55 @@
 @layer base {
   :root {
     /* ---------- Core surfaces ---------- */
-    --background: 210 40% 99%;
-    --foreground: 220 50% 15%;
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 50% 15%;
+    --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 50% 15%;
+    --popover-foreground: 222.2 84% 4.9%;
 
     /* ---------- Brand: navy primary ---------- */
-    /* #1F3864 → hsl(218 53% 26%) */
-    --primary: 218 53% 26%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 218 53% 38%;
+    /* Deep electric blue for premium feel */
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --primary-glow: 221.2 83.2% 53.3%;
 
     /* ---------- Secondary: cell blue ---------- */
-    /* #D6E4F0 → hsl(210 53% 89%) */
-    --secondary: 210 53% 89%;
-    --secondary-foreground: 218 53% 26%;
+    /* Soft premium grey-blue */
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
     /* ---------- Muted ---------- */
-    --muted: 210 40% 96%;
-    --muted-foreground: 218 20% 45%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
     /* ---------- Accent: link blue ---------- */
-    /* #2E5FA3 → hsl(214 56% 41%) */
+    /* Vibrant cyan/blue accent */
     --accent: 214 56% 41%;
-    --accent-foreground: 0 0% 100%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
     /* ---------- Status colours ---------- */
-    --success: 122 39% 93%;          /* #E8F5E9 */
-    --success-foreground: 122 39% 25%;
-    --warning: 45 100% 90%;          /* #FFF3CD */
-    --warning-foreground: 35 80% 30%;
+    --success: 142.1 76.2% 36.3%;          
+    --success-foreground: 355.7 100% 97.3%;
+    --warning: 38 92% 50%;          
+    --warning-foreground: 48 96% 89%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
     /* ---------- Borders / inputs / focus ring ---------- */
-    /* border blue #AACDE0 → hsl(204 50% 78%) */
-    --border: 204 50% 84%;
-    --input: 204 50% 84%;
-    --ring: 218 53% 26%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
 
-    --radius: 0.625rem;
+    --radius: 0.75rem;
 
     /* ---------- Gradients ---------- */
-    --gradient-hero: linear-gradient(135deg, hsl(218 53% 26%) 0%, hsl(214 56% 41%) 100%);
-    --gradient-soft: linear-gradient(180deg, hsl(210 53% 96%) 0%, hsl(0 0% 100%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 53% 98%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(221.2 83.2% 53.3%) 0%, hsl(214 56% 41%) 100%);
+    --gradient-soft: linear-gradient(to bottom right, hsl(210 40% 98%) 0%, hsl(214 31.8% 91.4% / 0.5) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100% / 0.8) 0%, hsl(210 40% 98% / 0.4) 100%);
 
     /* ---------- Shadows ---------- */
     --shadow-sm: 0 1px 2px hsl(218 53% 26% / 0.06);
@@ -143,4 +142,28 @@
   .shadow-elegant { box-shadow: var(--shadow-md); }
   .shadow-elevated { box-shadow: var(--shadow-lg); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
+  
+  /* Glassmorphism Utilities */
+  .glass {
+    @apply bg-background/60 backdrop-blur-xl border border-border/50;
+  }
+  
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-md border border-border/50 shadow-elegant transition-all duration-300;
+  }
+  
+  .glass-card:hover {
+    @apply bg-card/90 shadow-elevated border-border/80 -translate-y-1;
+  }
+  
+  /* Animated Mesh Background */
+  .mesh-bg {
+    background-color: hsl(var(--background));
+    background-image: 
+      radial-gradient(at 40% 20%, hsl(var(--primary) / 0.08) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsl(var(--accent) / 0.08) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsl(var(--primary) / 0.05) 0px, transparent 50%);
+    background-size: 100% 100%;
+    background-attachment: fixed;
+  }
 }

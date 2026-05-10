@@ -75,7 +75,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full glass">
       <div className="container flex h-16 items-center justify-between gap-3">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 font-bold text-primary">

@@ -11,7 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 export default function Layout() {
   const { t } = useLanguage();
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-soft">
+    <div className="flex min-h-screen flex-col mesh-bg">
       <Navbar />
       <main className="flex-1">
         <Outlet />
