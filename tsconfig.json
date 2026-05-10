@@ -6,7 +6,11 @@
     "noUnusedParameters": false,
     "paths": {
       "@/*": [
-        "./src/*"
+        "./frontend/*",
+        "./backend/*",
+        "./integration/*",
+        "./payment-gateway/*",
+        "./ui-ux/*"
       ]
     },
     "skipLibCheck": true,
