@@ -21,6 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { ShieldCheck, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Auth() {
   const { t } = useLanguage();
@@ -39,14 +40,33 @@ export default function Auth() {
   const [signUpData, setSignUpData] = useState({ fullName: "", email: "", password: "" });
   const [busy, setBusy] = useState(false);
 
-  /** Handle the sign-in submit: validate, call Supabase, surface errors as toasts. */
+  /** Handle the sign-in submit: validate, call Supabase, surface errors as toasts.
+   *  After sign-in we check app_metadata.role — if the user is an agent they
+   *  must use /agent/login, so we sign them out and show an error.
+   */
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     const { error } = await signIn(signInData.email.trim(), signInData.password);
+    if (error) {
+      setBusy(false);
+      toast.error(error);
+      return;
+    }
+    // Refresh session to get the latest app_metadata (role, agent_id)
+    const { data: { session } } = await supabase.auth.getSession();
+    const role = (session?.user?.app_metadata as { role?: string } | undefined)?.role;
+    if (role === "agent") {
+      // Agents must use the dedicated agent portal — sign them out immediately.
+      await supabase.auth.signOut();
+      setBusy(false);
+      toast.error(
+        "This account is registered as an agent. Please use the Agent Portal login at /agent/login.",
+      );
+      return;
+    }
     setBusy(false);
-    if (error) toast.error(error);
-    else toast.success("Welcome back!");
+    toast.success("Welcome back!");
   }
 
   /** Handle the sign-up submit: validate password length, call Supabase. */
@@ -84,6 +104,12 @@ export default function Auth() {
           </div>
           <CardTitle className="text-2xl">{t("app.name")}</CardTitle>
           <p className="text-sm text-muted-foreground">Sign in to track your applications.</p>
+          <p className="text-xs text-muted-foreground">
+            Agent?{" "}
+            <Link to="/agent/login" className="text-accent hover:underline">
+              Use the Agent Portal →
+            </Link>
+          </p>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin">

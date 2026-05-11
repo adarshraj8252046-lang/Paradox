@@ -6,14 +6,20 @@
  * Dedicated sign-in screen for WelfareConnect agents. Uses the same Supabase
  * auth backend as user login but lives on its own URL so agents have a clear,
  * branded entry point. On success, agents land on /agent/dashboard.
+ *
+ * Key improvements over the original:
+ *  - Role is verified AFTER the auth state updates (not immediately after
+ *    signInWithPassword), so app_metadata is always available.
+ *  - If a citizen accidentally uses this page, they're signed out with a
+ *    clear error message.
  */
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShieldCheck, Loader2 } from "lucide-react";
+import { ShieldCheck, Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,27 +30,54 @@ export default function AgentLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  // Track whether we just submitted so we can do the role check on the
+  // next auth state update (avoids acting on a pre-existing session).
+  const pendingLoginRef = useRef(false);
 
-  // If an agent is already signed in, send them straight to the dashboard.
+  // Watch for auth state changes. When pendingLoginRef is true it means the
+  // user just logged in via this form — now the session has settled with
+  // app_metadata available, so we can safely check the role.
   useEffect(() => {
-    const role = (user?.app_metadata as { role?: string } | undefined)?.role;
-    if (user && role === "agent") navigate("/agent/dashboard", { replace: true });
+    if (!user) return;
+
+    const role = (user.app_metadata as { role?: string } | undefined)?.role;
+
+    if (pendingLoginRef.current) {
+      // New login — enforce agent-only access.
+      pendingLoginRef.current = false;
+      if (role !== "agent") {
+        supabase.auth.signOut();
+        toast.error(
+          "This account is not registered as an agent. Please use the citizen login at /auth/citizen.",
+        );
+        return;
+      }
+      toast.success("Welcome back, Agent!");
+      navigate("/agent/dashboard", { replace: true });
+      return;
+    }
+
+    // Already signed in (page refresh) — redirect silently if correct role.
+    if (role === "agent") {
+      navigate("/agent/dashboard", { replace: true });
+    }
   }, [user, navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
+    pendingLoginRef.current = true;
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
     setBusy(false);
     if (error) {
+      pendingLoginRef.current = false;
       toast.error(error.message);
-      return;
     }
-    toast.success("Welcome back, Agent!");
-    navigate("/agent/dashboard", { replace: true });
+    // On success the useEffect above will handle navigation after the
+    // onAuthStateChange fires and populates app_metadata.
   }
 
   return (
@@ -88,8 +121,15 @@ export default function AgentLogin() {
               {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign in
             </Button>
-            <p className="pt-2 text-center text-xs text-muted-foreground">
+            <p className="pt-1 text-center text-xs text-muted-foreground">
               This portal is for authorised WelfareConnect agents only.
+            </p>
+            <p className="text-center text-xs text-muted-foreground">
+              Not an agent?{" "}
+              <Link to="/auth/citizen" className="text-accent hover:underline">
+                <ArrowLeft className="mr-0.5 inline h-3 w-3" />
+                Citizen login
+              </Link>
             </p>
           </form>
         </CardContent>

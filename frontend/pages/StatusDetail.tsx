@@ -46,6 +46,7 @@ interface DetailRow {
     calls_total: number; calls_used: number;
     visits_total: number; visits_used: number;
   } | null;
+  agent_note: string | null;
 }
 
 interface InteractionRow {
@@ -78,7 +79,7 @@ export default function StatusDetail() {
         .from("applications")
         .select(`
           id, scheme_id, status, applied_at,
-          support_expires_at, assigned_agent_id,
+          support_expires_at, assigned_agent_id, agent_note,
           schemes(name, category),
           agents:assigned_agent_id(full_name, specialization)
         `)
@@ -89,7 +90,7 @@ export default function StatusDetail() {
       if (!data) return null;
       const row = data as unknown as {
         id: string; scheme_id: string; status: string; applied_at: string;
-        support_expires_at: string | null; assigned_agent_id: string | null;
+        support_expires_at: string | null; assigned_agent_id: string | null; agent_note: string | null;
         schemes: { name: string; category: string | null } | null;
         agents: { full_name: string; specialization: string[] | null } | null;
       };
@@ -125,6 +126,7 @@ export default function StatusDetail() {
           visits_total: pack.visits_total ?? 0,
           visits_used: pack.visits_used ?? 0,
         } : null,
+        agent_note: row.agent_note ?? null,
       };
     },
     enabled: !!user && !!applicationId,
@@ -222,10 +224,19 @@ export default function StatusDetail() {
           </Button>
           <h1 className="text-2xl font-bold text-primary">Status: {detail.scheme_name}</h1>
         </div>
-        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs text-muted-foreground">
-          {detail.status}
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs text-muted-foreground">
+            {detail.status}
+          </span>
+        </div>
       </div>
+      
+      {detail.agent_note && (
+        <div className="mb-6 rounded-lg border-l-4 border-primary bg-secondary/30 p-4">
+          <p className="text-sm font-semibold text-primary">Note from Agent</p>
+          <p className="mt-1 text-sm text-muted-foreground">{detail.agent_note}</p>
+        </div>
+      )}
 
       {/* ───────── SECTION A: at-a-glance strip ───────── */}
       <section className="mb-8 grid gap-3 sm:grid-cols-3">
