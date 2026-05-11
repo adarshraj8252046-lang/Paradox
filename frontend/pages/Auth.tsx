@@ -20,7 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
-import { ShieldCheck, Loader2 } from "lucide-react";
+import { ShieldCheck, Loader2, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function Auth() {
@@ -35,10 +35,10 @@ export default function Auth() {
     if (user) navigate(from, { replace: true });
   }, [user, from, navigate]);
 
-  // Local form state — separate maps for sign-in vs sign-up so they don't clash.
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [signUpData, setSignUpData] = useState({ fullName: "", email: "", password: "" });
   const [busy, setBusy] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
 
   /** Handle the sign-in submit: validate, call Supabase, surface errors as toasts.
    *  After sign-in we check app_metadata.role — if the user is an agent they
@@ -79,8 +79,22 @@ export default function Auth() {
     setBusy(true);
     const { error } = await signUp(signUpData.email.trim(), signUpData.password, signUpData.fullName.trim());
     setBusy(false);
-    if (error) toast.error(error);
-    else toast.success("Account created — you're signed in!");
+    if (error) {
+      toast.error(error);
+    } else {
+      setSignupSuccess(true);
+    }
+  }
+
+  async function handleResend() {
+    setBusy(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: signUpData.email.trim(),
+    });
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else toast.success("Verification email resent!");
   }
 
   /** Trigger the Supabase password-reset email flow. */
@@ -112,7 +126,25 @@ export default function Auth() {
           </p>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin">
+          {signupSuccess ? (
+            <div className="py-6 text-center space-y-4 animate-in fade-in zoom-in duration-300">
+              <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+              <h3 className="text-xl font-bold">Check your email to verify your account</h3>
+              <p className="text-sm text-muted-foreground">
+                We've sent a verification link to <span className="font-semibold text-foreground">{signUpData.email}</span>. Please click the link in that email to activate your WelfareConnect account.
+              </p>
+              <div className="pt-4 text-xs text-muted-foreground space-y-1">
+                <p>Didn't receive it? Check your spam folder, or</p>
+                <Button variant="link" className="px-1 h-auto py-0 text-xs text-accent" onClick={handleResend} disabled={busy}>
+                  {busy ? "Resending..." : "Resend verification email"}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-4">The link expires in 24 hours.</p>
+            </div>
+          ) : (
+            <Tabs defaultValue="signin">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">{t("auth.signin")}</TabsTrigger>
               <TabsTrigger value="signup">{t("auth.signup")}</TabsTrigger>
@@ -175,6 +207,7 @@ export default function Auth() {
               </form>
             </TabsContent>
           </Tabs>
+          )}
           <p className="mt-6 text-center text-xs text-muted-foreground">
             By continuing you agree to our terms.{" "}
             <Link to="/" className="text-accent hover:underline">Back to home</Link>

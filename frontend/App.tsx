@@ -37,9 +37,11 @@ import Dashboard from "@/pages/Dashboard";
 import Auth from "@/pages/Auth";
 import AuthChooser from "@/pages/AuthChooser";
 import AuthCallback from "@/pages/AuthCallback";
+import AuthConfirmed from "@/pages/AuthConfirmed";
 import ResetPassword from "@/pages/ResetPassword";
 import Subscription from "@/pages/Subscription";
 import AgentLogin from "@/pages/AgentLogin";
+import AgentRegister from "@/pages/AgentRegister";
 import AgentDashboard from "@/pages/AgentDashboard";
 import AgentApplicationDetail from "@/pages/AgentApplicationDetail";
 import AgentApplicationsList from "@/pages/AgentApplicationsList";
@@ -73,6 +75,7 @@ const App = () => (
                   <Route path="/auth" element={<AuthChooser />} />
                   <Route path="/auth/citizen" element={<Auth />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route path="/auth/confirmed" element={<AuthConfirmed />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
 
                   {/* Protected routes — require login */}
@@ -85,6 +88,7 @@ const App = () => (
 
                   {/* Agent portal */}
                   <Route path="/agent/login" element={<AgentLogin />} />
+                  <Route path="/agent/register" element={<AgentRegister />} />
                   <Route path="/agent/dashboard" element={<ProtectedRoute requiredRole="agent"><AgentDashboard /></ProtectedRoute>} />
                   <Route path="/agent/applications" element={<ProtectedRoute requiredRole="agent"><AgentApplicationsList /></ProtectedRoute>} />
                   <Route path="/agent/notifications" element={<ProtectedRoute requiredRole="agent"><AgentNotifications /></ProtectedRoute>} />

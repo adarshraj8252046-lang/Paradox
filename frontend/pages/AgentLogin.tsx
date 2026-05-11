@@ -41,25 +41,40 @@ export default function AgentLogin() {
     if (!user) return;
 
     const role = (user.app_metadata as { role?: string } | undefined)?.role;
+    const agentId = (user.app_metadata as { agent_id?: string } | undefined)?.agent_id;
 
     if (pendingLoginRef.current) {
       // New login — enforce agent-only access.
       pendingLoginRef.current = false;
-      if (role !== "agent") {
+      if (role !== "agent" || !agentId) {
         supabase.auth.signOut();
         toast.error(
           "This account is not registered as an agent. Please use the citizen login at /auth/citizen.",
         );
         return;
       }
-      toast.success("Welcome back, Agent!");
-      navigate("/agent/dashboard", { replace: true });
+      
+      supabase.from("agents").select("is_approved").eq("id", agentId).single().then(({ data }) => {
+        if (!data?.is_approved) {
+          supabase.auth.signOut();
+          toast.error("Your application is still under review. Please wait for admin approval.");
+        } else {
+          toast.success("Welcome back, Agent!");
+          navigate("/agent/dashboard", { replace: true });
+        }
+      });
       return;
     }
 
     // Already signed in (page refresh) — redirect silently if correct role.
-    if (role === "agent") {
-      navigate("/agent/dashboard", { replace: true });
+    if (role === "agent" && agentId) {
+      supabase.from("agents").select("is_approved").eq("id", agentId).single().then(({ data }) => {
+        if (data?.is_approved) {
+          navigate("/agent/dashboard", { replace: true });
+        } else {
+          supabase.auth.signOut();
+        }
+      });
     }
   }, [user, navigate]);
 
@@ -129,6 +144,12 @@ export default function AgentLogin() {
               <Link to="/auth/citizen" className="text-accent hover:underline">
                 <ArrowLeft className="mr-0.5 inline h-3 w-3" />
                 Citizen login
+              </Link>
+            </p>
+            <p className="text-center text-xs text-muted-foreground mt-2 border-t pt-4">
+              Want to become an agent?{" "}
+              <Link to="/agent/register" className="text-accent hover:underline">
+                Apply here
               </Link>
             </p>
           </form>
