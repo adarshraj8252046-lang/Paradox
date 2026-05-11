@@ -22,8 +22,7 @@ VALUES ('agent-documents', 'agent-documents', false)
 ON CONFLICT (id) DO NOTHING;
 
 -- RLS for the agent-documents bucket
--- Enable RLS on the storage.objects table if not already enabled
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- Note: storage.objects already has RLS enabled by default in Supabase.
 
 -- 1. Admins can do everything with agent documents
 --    (Assuming role is admin via JWT app_metadata)
