@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
   const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
   const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || "indranilgamer@gmail.com";
-  const JWT_SECRET = Deno.env.get("SUPABASE_JWT_SECRET") || "super-secret-jwt-token-with-at-least-32-characters-long";
+  const JWT_SECRET = Deno.env.get("MY_JWT_SECRET") || "super-secret-jwt-token-with-at-least-32-characters-long";
 
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
     return jsonResponse({ error: "Server misconfigured" }, 500);

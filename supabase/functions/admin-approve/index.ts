@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
   const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-  const JWT_SECRET = Deno.env.get("SUPABASE_JWT_SECRET") || "super-secret-jwt-token-with-at-least-32-characters-long";
+  const JWT_SECRET = Deno.env.get("MY_JWT_SECRET") || "super-secret-jwt-token-with-at-least-32-characters-long";
   const APP_URL = Deno.env.get("APP_URL") || "https://paradox-welfare.vercel.app";
 
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
