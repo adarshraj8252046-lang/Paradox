@@ -47,6 +47,7 @@ import AgentApplicationDetail from "@/pages/AgentApplicationDetail";
 import AgentApplicationsList from "@/pages/AgentApplicationsList";
 import AgentNotifications from "@/pages/AgentNotifications";
 import AgentSchedule from "@/pages/AgentSchedule";
+import AgentAccount from "@/pages/AgentAccount";
 import AdminCreateAgent from "@/pages/AdminCreateAgent";
 import NotFound from "@/pages/NotFound";
 
@@ -93,6 +94,7 @@ const App = () => (
                   <Route path="/agent/applications" element={<ProtectedRoute requiredRole="agent"><AgentApplicationsList /></ProtectedRoute>} />
                   <Route path="/agent/notifications" element={<ProtectedRoute requiredRole="agent"><AgentNotifications /></ProtectedRoute>} />
                   <Route path="/agent/schedule" element={<ProtectedRoute requiredRole="agent"><AgentSchedule /></ProtectedRoute>} />
+                  <Route path="/agent/account" element={<ProtectedRoute requiredRole="agent"><AgentAccount /></ProtectedRoute>} />
                   <Route path="/agent/application/:id" element={<ProtectedRoute requiredRole="agent"><AgentApplicationDetail /></ProtectedRoute>} />
 
                   {/* Admin */}
