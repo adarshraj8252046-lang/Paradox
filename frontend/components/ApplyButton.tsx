@@ -52,7 +52,7 @@ export default function ApplyButton({
 
     // Logged-out → bounce to /auth and remember where to return.
     if (!user) {
-      navigate("/auth", { state: { from: location.pathname, applySchemeId: scheme.id } });
+      navigate("/auth/citizen", { state: { from: location.pathname, applySchemeId: scheme.id } });
       return;
     }
 

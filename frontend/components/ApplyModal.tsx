@@ -41,7 +41,7 @@ import { toast } from "sonner";
 import { Loader2, Upload, X, FileText, CalendarClock, AlertTriangle } from "lucide-react";
 import PaymentModal from "@/components/PaymentModal";
 import { PRICES } from "@/lib/concession";
-import { combineDateAndSlot, pickAgentForNewApplication, slotStartHHMM } from "@/lib/agentAssignment";
+import { combineDateAndSlot, slotStartHHMM } from "@/lib/agentAssignment";
 import type { ActivePlus, ActivePack } from "@/hooks/usePlanAccess";
 
 const MAX_FILE_BYTES = 3 * 1024 * 1024;
@@ -172,18 +172,8 @@ export default function ApplyModal({ open, onClose, scheme, plus, pack }: Props)
       // in when "Book Next Call" is allowed for this scheme.
       const supportExpiresAt = source.row.expires_at;
 
-      // Pick the first agent for this scheme (load-balanced, specialization-
-      // matched, slot-conflict-aware). Done BEFORE the insert so we can write
-      // assigned_agent_id atomically with the row.
-      // We also need the scheme's category to pick the best specialization.
-      let schemeCategory: string | null = null;
-      const { data: schemeRow } = await supabase
-        .from("schemes").select("category").eq("id", scheme.id).maybeSingle();
-      schemeCategory = schemeRow?.category ?? null;
-
-      const agentId = await pickAgentForNewApplication(schemeCategory, scheduledAtIso);
-
-      // 1) Create application row.
+      // 1) Create application row — no agent assigned yet; the application
+      //    goes to a shared pool that all agents can see and accept.
       const { data: app, error: appErr } = await supabase
         .from("applications")
         .insert({
@@ -197,8 +187,8 @@ export default function ApplyModal({ open, onClose, scheme, plus, pack }: Props)
           message,
           visit_requested: requestVisit,
           support_expires_at: supportExpiresAt,
-          assigned_agent_id: agentId,
-          agent_assigned_at: agentId ? new Date().toISOString() : null,
+          assigned_agent_id: null,
+          agent_assigned_at: null,
         })
         .select()
         .single();
@@ -220,9 +210,10 @@ export default function ApplyModal({ open, onClose, scheme, plus, pack }: Props)
 
       // 3) Insert the initial timeline interactions for the booked
       //    consultation (and the optional agent home visit).
+      //    agent_id is null until an agent accepts the application.
       await supabase.from("interactions").insert({
         application_id: app.id,
-        agent_id: agentId,
+        agent_id: null,
         interaction_type: "call_booked",
         scheduled_at: scheduledAtIso,
         notes: `First consultation call for ${scheme.name}`,
@@ -231,7 +222,7 @@ export default function ApplyModal({ open, onClose, scheme, plus, pack }: Props)
       if (requestVisit) {
         await supabase.from("interactions").insert({
           application_id: app.id,
-          agent_id: agentId,
+          agent_id: null,
           interaction_type: "visit_booked",
           scheduled_at: scheduledAtIso,
           notes: `First agent home visit for ${scheme.name}`,
@@ -266,8 +257,7 @@ export default function ApplyModal({ open, onClose, scheme, plus, pack }: Props)
         body: `Your call is scheduled for ${friendlyDate} at ${slot}. A consultant will reach you then.`,
       });
 
-      // Silence the unused-import warning for slotStartHHMM; it's exported
-      // for callers but not directly invoked in this file.
+      // slotStartHHMM is exported from agentAssignment for callers.
       void slotStartHHMM;
 
       toast.success("Application submitted! Track its status in Status Tracking.");

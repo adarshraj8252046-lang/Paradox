@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import {
   ArrowLeft, FileText, Loader2, AlertTriangle, Clock,
-  Download, Phone, Home as HomeIcon, CheckCircle2,
+  Download, Phone, Home as HomeIcon, CheckCircle2, XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -53,6 +53,9 @@ const STATUS_OPTIONS = [
   "Submitted to Govt Portal", "Approved", "Rejected",
 ] as const;
 
+/** Statuses that cannot be changed further. */
+const TERMINAL_STATUSES = new Set(["Approved", "Rejected", "Cancelled"] as const);
+
 /* ─── Helpers ───────────────────────────────────────────────────────────── */
 function maskAadhar(a: string | null) {
   if (!a) return "—";
@@ -71,7 +74,7 @@ function planLabel(v: string | null) {
 }
 function statusVariant(s: string): "default" | "secondary" | "destructive" | "outline" {
   if (s === "Approved") return "default";
-  if (s === "Rejected") return "destructive";
+  if (s === "Rejected" || s === "Cancelled") return "destructive";
   if (s === "Under Review" || s === "Submitted to Govt Portal") return "secondary";
   return "outline";
 }
@@ -89,6 +92,9 @@ export default function AgentApplicationDetail() {
   const [newStatus, setNewStatus] = useState("");
   const [updating, setUpdating] = useState(false);
   const [logging, setLogging] = useState<"call" | "visit" | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+  const [showCancelPanel, setShowCancelPanel] = useState(false);
 
   /* Application query */
   const { data: app, isLoading, error } = useQuery({
@@ -188,6 +194,48 @@ export default function AgentApplicationDetail() {
     qc.invalidateQueries({ queryKey: ["agent-application", id] });
     qc.invalidateQueries({ queryKey: ["audit-log", id] });
     setUpdating(false);
+  }
+
+  /* ── Cancel Application ─────────────────────────────────────────── */
+  async function handleCancel() {
+    if (!app || !cancelReason.trim()) return;
+    setCancelling(true);
+    const prev = app.status;
+
+    const { error: e1 } = await supabase
+      .from("applications")
+      .update({
+        status: "Cancelled",
+        agent_note: cancelReason.trim(),
+        status_updated_at: new Date().toISOString(),
+      })
+      .eq("id", app.id);
+    if (e1) { toast.error(e1.message); setCancelling(false); return; }
+
+    await supabase.from("application_status_audit").insert({
+      application_id: app.id,
+      agent_id: agentId,
+      previous_status: prev,
+      new_status: "Cancelled",
+      note: cancelReason.trim(),
+    });
+
+    await supabase.from("notifications").insert({
+      user_id: app.user_id,
+      title: "Application cancelled",
+      body: `Your application for ${
+        app.scheme?.name ?? "your scheme"
+      } was cancelled by the agent. Reason: ${cancelReason.trim()}`,
+      target_role: "citizen",
+      application_id: app.id,
+    });
+
+    toast.success("Application cancelled and customer notified.");
+    setCancelReason("");
+    setShowCancelPanel(false);
+    qc.invalidateQueries({ queryKey: ["agent-application", id] });
+    qc.invalidateQueries({ queryKey: ["audit-log", id] });
+    setCancelling(false);
   }
 
   /* ── Log Call / Visit ──────────────────────────────────────────────── */
@@ -343,15 +391,23 @@ export default function AgentApplicationDetail() {
       </Card>
 
       {/* ── Status Update Panel ── */}
-      <Card>
+      <Card className={TERMINAL_STATUSES.has(app.status as any) ? "opacity-60" : ""}>
         <CardHeader>
           <CardTitle className="text-lg">Update Application Status</CardTitle>
-          <CardDescription>Add an optional note visible to the citizen.</CardDescription>
+          <CardDescription>
+            {TERMINAL_STATUSES.has(app.status as any)
+              ? `This application is in a terminal state (${app.status}) and cannot be updated further.`
+              : "Add an optional note visible to the citizen."}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="status-select">New Status</Label>
-            <Select value={newStatus} onValueChange={setNewStatus}>
+            <Select
+              value={newStatus}
+              onValueChange={setNewStatus}
+              disabled={TERMINAL_STATUSES.has(app.status as any)}
+            >
               <SelectTrigger id="status-select" className="w-[260px]">
                 <SelectValue placeholder={`Current: ${app.status}`} />
               </SelectTrigger>
@@ -370,11 +426,12 @@ export default function AgentApplicationDetail() {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
+              disabled={TERMINAL_STATUSES.has(app.status as any)}
             />
           </div>
           <Button
             onClick={handleStatusUpdate}
-            disabled={updating || !newStatus}
+            disabled={updating || !newStatus || TERMINAL_STATUSES.has(app.status as any)}
             className="gap-2"
           >
             {updating ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
@@ -387,6 +444,71 @@ export default function AgentApplicationDetail() {
           )}
         </CardContent>
       </Card>
+
+      {/* ── Cancel Application Panel ── */}
+      {!TERMINAL_STATUSES.has(app.status as any) && (
+        <Card className="border-destructive/40">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg text-destructive">
+              <XCircle className="h-5 w-5" /> Cancel Application
+            </CardTitle>
+            <CardDescription>
+              Cancelling will notify the customer with your reason. This cannot be undone.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!showCancelPanel ? (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowCancelPanel(true)}
+              >
+                <XCircle className="mr-2 h-4 w-4" /> Cancel this Application
+              </Button>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="cancel-reason">
+                    Reason for cancellation{" "}
+                    <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
+                    id="cancel-reason"
+                    placeholder="e.g. Duplicate application — the citizen already has an active application for this scheme."
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    rows={3}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This reason will be sent to the customer as a notification.
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    variant="destructive"
+                    onClick={handleCancel}
+                    disabled={cancelling || !cancelReason.trim()}
+                    className="gap-2"
+                  >
+                    {cancelling
+                      ? <Loader2 className="h-4 w-4 animate-spin" />
+                      : <XCircle className="h-4 w-4" />}
+                    Confirm Cancellation
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => { setShowCancelPanel(false); setCancelReason(""); }}
+                    disabled={cancelling}
+                  >
+                    Keep Application
+                  </Button>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* ── Audit Timeline ── */}
       <Card>

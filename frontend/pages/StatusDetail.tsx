@@ -15,14 +15,14 @@
  *      after the support window ends. "Change Agent" is also disabled after
  *      the user has already changed agents once on this application.
  */
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, UserCircle2, Phone, Home, FileSearch, MessageSquare, RefreshCcw } from "lucide-react";
+import { ArrowLeft, UserCircle2, Phone, Home, FileSearch, MessageSquare, RefreshCcw, XCircle } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import BookNextCallModal from "@/components/BookNextCallModal";
 import ChangeAgentModal from "@/components/ChangeAgentModal";
@@ -132,6 +132,27 @@ export default function StatusDetail() {
     enabled: !!user && !!applicationId,
   });
 
+  // ─── Realtime subscription — live status updates for the customer ───
+  useEffect(() => {
+    if (!applicationId) return;
+    const channel = supabase
+      .channel(`application-status-${applicationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "applications",
+          filter: `id=eq.${applicationId}`,
+        },
+        () => {
+          void refetchDetail();
+        },
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [applicationId, refetchDetail]);
+
   // ─── 2. Timeline interactions ───
   const { data: timeline = [], refetch: refetchTimeline } = useQuery({
     queryKey: ["statusTimeline", applicationId],
@@ -225,18 +246,40 @@ export default function StatusDetail() {
           <h1 className="text-2xl font-bold text-primary">Status: {detail.scheme_name}</h1>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs text-muted-foreground">
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            detail.status === "Cancelled"
+              ? "bg-destructive/10 text-destructive"
+              : detail.status === "Approved"
+              ? "bg-green-100 text-green-800"
+              : "bg-secondary text-muted-foreground"
+          }`}>
             {detail.status}
           </span>
         </div>
       </div>
       
-      {detail.agent_note && (
+      {detail.status === "Cancelled" ? (
+        <div className="mb-6 rounded-lg border border-destructive/40 bg-destructive/5 p-5">
+          <div className="flex items-center gap-2 text-destructive">
+            <XCircle className="h-5 w-5 shrink-0" />
+            <p className="font-bold text-base">Application Cancelled</p>
+          </div>
+          {detail.agent_note && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">Reason: </span>
+              {detail.agent_note}
+            </p>
+          )}
+          <p className="mt-3 text-xs text-muted-foreground">
+            If you believe this is an error, please contact support or reapply for the scheme.
+          </p>
+        </div>
+      ) : detail.agent_note ? (
         <div className="mb-6 rounded-lg border-l-4 border-primary bg-secondary/30 p-4">
           <p className="text-sm font-semibold text-primary">Note from Agent</p>
           <p className="mt-1 text-sm text-muted-foreground">{detail.agent_note}</p>
         </div>
-      )}
+      ) : null}
 
       {/* ───────── SECTION A: at-a-glance strip ───────── */}
       <section className="mb-8 grid gap-3 sm:grid-cols-3">
