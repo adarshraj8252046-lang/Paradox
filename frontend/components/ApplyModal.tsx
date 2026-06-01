@@ -184,6 +184,8 @@ export default function ApplyModal({ open, onClose, scheme, plus, pack }: Props)
           consultation_date: date,
           consultation_time_slot: slot,
           aadhar,
+          applicant_name: name,
+          applicant_phone: phone,
           message,
           visit_requested: requestVisit,
           support_expires_at: supportExpiresAt,

@@ -1,0 +1,2 @@
+-- Check if we can create signed URL for the document using agent role
+SELECT storage.create_signed_url('application-docs', '87a290bf-634c-4a48-a33c-2a76e32bcdcf/aff3273e-a4f5-40de-9711-3ff43cf26f4a/1739524673809_Affinity_Map_Welfare_Scheme.pdf', 3600);

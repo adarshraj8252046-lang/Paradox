@@ -36,6 +36,8 @@ interface AppRow {
   applied_at: string;
   applied_via: string | null;
   scheme: { name: string } | null;
+  applicant_name: string | null;
+  applicant_phone: string | null;
   user_profile: { full_name: string | null } | null;
 }
 
@@ -45,6 +47,8 @@ interface PendingRow {
   applied_at: string;
   applied_via: string | null;
   scheme: { name: string; category: string | null } | null;
+  applicant_name: string | null;
+  applicant_phone: string | null;
   user_profile: { full_name: string | null } | null;
 }
 
@@ -90,7 +94,7 @@ export default function AgentApplicationsList() {
       const { data, error } = await supabase
         .from("applications")
         .select(`
-          id, status, applied_at, applied_via,
+          id, status, applied_at, applicant_name, applicant_phone,
           scheme:schemes(name, category),
           user_profile:profiles!applications_user_id_fkey(full_name)
         `)
@@ -110,7 +114,7 @@ export default function AgentApplicationsList() {
       const { data, error } = await supabase
         .from("applications")
         .select(`
-          id, status, applied_at, applied_via,
+          id, status, applied_at, applied_via, applicant_name, applicant_phone,
           scheme:schemes(name),
           user_profile:profiles!applications_user_id_fkey(full_name)
         `)
@@ -139,7 +143,7 @@ export default function AgentApplicationsList() {
       if (filterPlan !== ALL && a.applied_via !== filterPlan) return false;
       if (filterScheme !== ALL && (a.scheme?.name ?? "Unknown") !== filterScheme) return false;
       if (q) {
-        const name = (a.user_profile?.full_name ?? "").toLowerCase();
+        const name = (a.applicant_name ?? a.user_profile?.full_name ?? "").toLowerCase();
         if (!name.includes(q) && !a.id.includes(q)) return false;
       }
       return true;
@@ -253,7 +257,7 @@ export default function AgentApplicationsList() {
                     {pendingPool.map((app) => (
                       <TableRow key={app.id} className="bg-amber-50/50 dark:bg-amber-950/10">
                         <TableCell className="font-medium">
-                          {app.user_profile?.full_name ?? "—"}
+                          {app.applicant_name ?? app.user_profile?.full_name ?? "—"}
                         </TableCell>
                         <TableCell className="max-w-[180px] truncate">
                           {app.scheme?.name ?? "—"}
@@ -402,7 +406,7 @@ export default function AgentApplicationsList() {
                       {filtered.map((app) => (
                         <TableRow key={app.id} className="hover:bg-secondary/30">
                           <TableCell className="font-medium">
-                            {app.user_profile?.full_name ?? "—"}
+                            {app.applicant_name ?? app.user_profile?.full_name ?? "—"}
                           </TableCell>
                           <TableCell className="max-w-[180px] truncate">
                             {app.scheme?.name ?? "—"}

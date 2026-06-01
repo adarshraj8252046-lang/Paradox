@@ -48,6 +48,8 @@ interface AgentApplicationRow {
   support_expires_at: string | null;
   applied_via: string | null;
   scheme: { name: string; category: string | null } | null;
+  applicant_name: string | null;
+  applicant_phone: string | null;
   user_profile: { full_name: string | null; phone: string | null } | null;
   documents: { id: string; file_name: string; file_size_bytes: number }[];
 }
@@ -58,6 +60,8 @@ interface PendingRow {
   applied_at: string;
   applied_via: string | null;
   scheme: { name: string; category: string | null } | null;
+  applicant_name: string | null;
+  applicant_phone: string | null;
   user_profile: { full_name: string | null } | null;
 }
 
@@ -122,9 +126,9 @@ export default function AgentDashboard() {
       const { data, error } = await supabase
         .from("applications")
         .select(`
-          id, status, applied_at, applied_via,
-          scheme:schemes(name, category),
-          user_profile:profiles!applications_user_id_fkey(full_name)
+          id, status, applied_at, consultation_status, applicant_name, applicant_phone,
+          scheme:schemes(name),
+          user_profile:profiles!applications_user_id_fkey(full_name, phone),
         `)
         .is("assigned_agent_id", null)
         .order("applied_at", { ascending: true });
@@ -256,7 +260,7 @@ export default function AgentDashboard() {
                   {pendingPool.map((app) => (
                     <TableRow key={app.id} className="bg-amber-50/50 dark:bg-amber-950/5">
                       <TableCell className="font-medium">
-                        {app.user_profile?.full_name ?? "—"}
+                        {app.applicant_name ?? app.user_profile?.full_name ?? "—"}
                       </TableCell>
                       <TableCell className="max-w-[160px] truncate">
                         {app.scheme?.name ?? "—"}
@@ -340,9 +344,9 @@ export default function AgentDashboard() {
                   {applications.map((app) => (
                     <TableRow key={app.id}>
                       <TableCell className="font-medium">
-                        {app.user_profile?.full_name ?? "—"}
+                        {app.applicant_name ?? app.user_profile?.full_name ?? "—"}
                       </TableCell>
-                      <TableCell>{app.user_profile?.phone ?? "—"}</TableCell>
+                      <TableCell>{app.applicant_phone ?? app.user_profile?.phone ?? "—"}</TableCell>
                       <TableCell>{app.scheme?.name ?? "—"}</TableCell>
                       <TableCell>
                         <Badge variant={statusVariant(app.status)}>{app.status}</Badge>
@@ -378,7 +382,7 @@ export default function AgentDashboard() {
                     <AccordionTrigger className="text-left">
                       <span className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">
-                          {app.user_profile?.full_name ?? "Unknown user"}
+                          {app.applicant_name ?? app.user_profile?.full_name ?? "Unknown user"}
                         </span>
                         <span className="text-muted-foreground">·</span>
                         <span className="text-sm text-muted-foreground">
@@ -392,8 +396,8 @@ export default function AgentDashboard() {
                     <AccordionContent>
                       <div className="grid gap-4 md:grid-cols-2">
                         <DetailBlock title="User">
-                          <DetailRow k="Name" v={app.user_profile?.full_name ?? "—"} />
-                          <DetailRow k="Phone" v={app.user_profile?.phone ?? "—"} />
+                          <DetailRow k="Name" v={app.applicant_name ?? app.user_profile?.full_name ?? "—"} />
+                          <DetailRow k="Phone" v={app.applicant_phone ?? app.user_profile?.phone ?? "—"} />
                         </DetailBlock>
                         <DetailBlock title="Scheme">
                           <DetailRow k="Name" v={app.scheme?.name ?? "—"} />

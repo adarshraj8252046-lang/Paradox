@@ -27,6 +27,7 @@ interface ScheduleRow {
   application: {
     id: string;
     scheme: { name: string } | null;
+    applicant_name: string | null;
     user_profile: { full_name: string | null } | null;
   } | null;
 }
@@ -69,6 +70,7 @@ export default function AgentSchedule() {
           id, interaction_type, scheduled_at, notes, completed_at,
           application:applications(
             id,
+            applicant_name,
             scheme:schemes(name),
             user_profile:profiles!applications_user_id_fkey(full_name)
           )
@@ -162,7 +164,7 @@ export default function AgentSchedule() {
                           <span>
                             <span className="text-muted-foreground">Citizen: </span>
                             <span className="font-medium">
-                              {row.application?.user_profile?.full_name ?? "—"}
+                              {row.application?.applicant_name ?? row.application?.user_profile?.full_name ?? "—"}
                             </span>
                           </span>
                           <span>

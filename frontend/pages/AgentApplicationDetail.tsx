@@ -36,6 +36,8 @@ interface AppDetail {
   applied_via: string | null; message: string | null; aadhar: string | null;
   assigned_agent_id: string | null; agent_note: string | null;
   scheme: { id: string; name: string; category: string | null } | null;
+  applicant_name: string | null;
+  applicant_phone: string | null;
   user_profile: { full_name: string | null; phone: string | null } | null;
   documents: { id: string; file_name: string; file_size_bytes: number; file_path: string }[];
   subscription: { calls_total: number; calls_used: number; visits_total: number; visits_used: number; expires_at: string; plan_type: string | null } | null;
@@ -106,7 +108,7 @@ export default function AgentApplicationDetail() {
         .select(`
           id, user_id, status, consultation_status, consultation_date,
           consultation_time_slot, visit_requested, applied_at, support_expires_at,
-          applied_via, message, aadhar, assigned_agent_id, agent_note,
+          applied_via, message, aadhar, assigned_agent_id, agent_note, applicant_name, applicant_phone,
           scheme:schemes(id, name, category),
           user_profile:profiles!applications_user_id_fkey(full_name, phone),
           documents:application_documents(id, file_name, file_size_bytes, file_path)
@@ -313,7 +315,7 @@ export default function AgentApplicationDetail() {
         <CardHeader>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <CardTitle className="text-2xl">{app.user_profile?.full_name ?? "Unnamed"}</CardTitle>
+              <CardTitle className="text-2xl">{app.applicant_name ?? app.user_profile?.full_name ?? "Unnamed"}</CardTitle>
               <CardDescription>
                 {app.scheme?.name ?? "Unknown scheme"} · Applied{" "}
                 {new Date(app.applied_at).toLocaleDateString()}
@@ -325,8 +327,8 @@ export default function AgentApplicationDetail() {
         <CardContent className="space-y-6">
           {/* Citizen info */}
           <Section title="Citizen Information">
-            <Row k="Full Name" v={app.user_profile?.full_name ?? "—"} />
-            <Row k="Phone" v={app.user_profile?.phone ?? "—"} />
+            <Row k="Full Name" v={app.applicant_name ?? app.user_profile?.full_name ?? "—"} />
+            <Row k="Phone" v={app.applicant_phone ?? app.user_profile?.phone ?? "—"} />
             <Row k="Aadhar" v={maskAadhar(app.aadhar)} />
             {app.message && <Row k="Message" v={app.message} multiline />}
           </Section>
