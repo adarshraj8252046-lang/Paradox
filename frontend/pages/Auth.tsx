@@ -78,11 +78,18 @@ export default function Auth() {
     }
     setBusy(true);
     const { error } = await signUp(signUpData.email.trim(), signUpData.password, signUpData.fullName.trim());
-    setBusy(false);
     if (error) {
+      setBusy(false);
       toast.error(error);
     } else {
-      setSignupSuccess(true);
+      // Auto-login since email verification is bypassed in DB
+      const { error: signInErr } = await signIn(signUpData.email.trim(), signUpData.password);
+      setBusy(false);
+      if (signInErr) {
+        toast.error("Account created, but couldn't auto-login: " + signInErr);
+      } else {
+        toast.success("Account created successfully! Welcome.");
+      }
     }
   }
 
