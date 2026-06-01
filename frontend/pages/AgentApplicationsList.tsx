@@ -269,7 +269,12 @@ export default function AgentApplicationsList() {
                         <TableCell className="text-sm text-muted-foreground">
                           {new Date(app.applied_at).toLocaleDateString()}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right flex items-center justify-end gap-2">
+                          <Button asChild size="sm" variant="outline">
+                            <Link to={`/agent/application/${app.id}`}>
+                              Open <ExternalLink className="ml-1 h-3 w-3" />
+                            </Link>
+                          </Button>
                           <Button
                             size="sm"
                             className="gap-1.5 bg-amber-600 hover:bg-amber-700"
